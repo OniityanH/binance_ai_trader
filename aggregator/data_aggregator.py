@@ -87,6 +87,19 @@ class DataAggregator:
         else:
             news_text = "无最新新闻"
         
+        # 格式化大额转账
+        whale_alerts = whale_data.get("whale_alerts", [])
+        whale_text = ""
+        if whale_alerts:
+            from datetime import datetime
+            for i, alert in enumerate(whale_alerts[:5], 1):  # 最多显示5笔
+                time_str = datetime.fromtimestamp(alert.get("time", 0)).strftime("%H:%M") if alert.get("time") else "未知"
+                amount_usd = alert.get("amount_usd", 0)
+                symbol = alert.get("symbol", "")
+                whale_text += f"{i}. {time_str} | {symbol} | ${amount_usd:,.0f}\n"
+        else:
+            whale_text = "无大额转账"
+        
         # 账户余额
         account_balance = data.get("account_balance", 0)
         
@@ -125,9 +138,10 @@ class DataAggregator:
 ### 资金费率
 - 当前费率: {premium.get('funding_rate', 0) * 100}%
 
-## 链上/鲸鱼数据
-- 大额转账: {len(whale_data.get('whale_alerts', []))}笔
-- 综合情绪: {whale_data.get('sentiment', 'neutral')}
+## 链上/鲸鱼数据 (大额转账)
+{whale_text}
+
+## 综合情绪: {whale_data.get('sentiment', 'neutral')}
 
 ## 新闻 (最近3条)
 {news_text}

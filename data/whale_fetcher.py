@@ -27,7 +27,20 @@ class WhaleFetcher:
             response = requests.get(url, params=params, timeout=10)
             if response.status_code == 200:
                 data = response.json()
-                return data.get("transactions", [])
+                transactions = data.get("transactions", [])
+                # 格式化更详细的信息
+                formatted = []
+                for tx in transactions:
+                    formatted.append({
+                        "time": tx.get("timestamp"),
+                        "blockchain": tx.get("blockchain", ""),
+                        "symbol": tx.get("symbol", ""),
+                        "amount": tx.get("amount", 0),
+                        "amount_usd": tx.get("amount_usd", 0),
+                        "from": tx.get("from", ""),
+                        "to": tx.get("to", ""),
+                    })
+                return formatted
             else:
                 logger.error(f"WhaleAlert API错误: {response.status_code}")
                 return []
