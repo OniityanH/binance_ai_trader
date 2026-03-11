@@ -57,7 +57,7 @@ class DataAggregator:
         
         ticker = price_data.get("ticker", {})
         klines_1h = price_data.get("klines_1h", [])
-        klines_15m = price_data.get("klines_15m", [])
+        klines_1d = price_data.get("klines_1d", [])
         order_book = price_data.get("order_book", {})
         premium = price_data.get("premium_index", {})
         
@@ -71,12 +71,13 @@ class DataAggregator:
                 direction = "上涨" if k['close'] >= k['open'] else "下跌"
                 kline_1h_text += f"- {time_str}: {k['open']} → {k['close']} ({direction})\n"
         
-        # 格式化15分钟K线 (最近4根)
-        kline_15m_text = ""
-        if klines_15m:
-            for k in klines_15m[-4:]:
-                time_str = datetime.fromtimestamp(k['time']).strftime("%H:%M")
-                kline_15m_text += f"- {time_str}: {k['open']} → {k['close']}\n"
+        # 格式化1天K线 (最近7天，带星期)
+        kline_1d_text = ""
+        if klines_1d:
+            for k in klines_1d:
+                date_str = datetime.fromtimestamp(k['time']).strftime("%m-%d %A")
+                direction = "上涨" if k['close'] >= k['open'] else "下跌"
+                kline_1d_text += f"- {date_str}: {k['open']} → {k['close']} ({direction})\n"
         
         # 格式化新闻
         news_list = whale_data.get("news", [])
@@ -127,8 +128,8 @@ class DataAggregator:
 ### 1小时K线 (最近6根)
 {kline_1h_text}
 
-### 15分钟K线 (最近4根)
-{kline_15m_text}
+### 日K线 (最近7天)
+{kline_1d_text}
 
 ### 订单簿
 - 买方深度: ${order_book.get('bid_depth', 0):,.0f} USDT

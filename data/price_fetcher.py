@@ -122,8 +122,8 @@ class PriceFetcher:
             "ticker": self.get_ticker(symbol),
             # 1小时K线: 最近24根 = 24小时
             "klines_1h": self.get_klines(symbol, "1h", 24),
-            # 15分钟K线: 最近16根 = 4小时
-            "klines_15m": self.get_klines(symbol, "15m", 16),
+            # 1天K线: 最近7天
+            "klines_1d": self.get_klines(symbol, "1d", 7),
             "order_book": self.get_order_book(symbol),
             "premium_index": self.get_premium_index(symbol),
         }
