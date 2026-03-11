@@ -1,6 +1,7 @@
 from typing import Dict, Optional
 from data.price_fetcher import PriceFetcher
 from data.whale_fetcher import WhaleFetcher
+from trading.binance_client import BinanceClient
 from utils.logger import logger
 
 
@@ -10,6 +11,7 @@ class DataAggregator:
     def __init__(self):
         self.price_fetcher = PriceFetcher()
         self.whale_fetcher = WhaleFetcher()
+        self.binance_client = BinanceClient()
         logger.info("数据聚合器初始化完成")
     
     def aggregate(self, symbol: str, portfolio: Optional[Dict] = None) -> Dict:
@@ -29,6 +31,9 @@ class DataAggregator:
         # 鲸鱼/新闻数据
         whale_data = self.whale_fetcher.get_all_data(symbol.replace("USDT", ""))
         
+        # 账户余额
+        usdt_balance = self.binance_client.get_balance("USDT")
+        
         # 聚合
         aggregated = {
             "symbol": symbol,
@@ -36,6 +41,7 @@ class DataAggregator:
             "price_data": price_data,
             "whale_data": whale_data,
             "portfolio": portfolio,
+            "account_balance": usdt_balance,
         }
         
         logger.info(f"{symbol} 数据聚合完成")
@@ -81,8 +87,14 @@ class DataAggregator:
         else:
             news_text = "无最新新闻"
         
+        # 账户余额
+        account_balance = data.get("account_balance", 0)
+        
         prompt = f"""## 交易对
 {symbol}
+
+## 账户资金
+- USDT可用余额: ${account_balance:,.2f}
 
 ## 持仓状态
 - 当前持仓: {portfolio.get('current_position', 0)} {symbol}
